@@ -752,16 +752,40 @@ function restoreCartState(){
     // atualizar UI
     updateCartUI();
     renderCartItems();
-
-    Object.keys(products).forEach(id=>{
-        updateQtyDisplay(id);
-        updateFlavorList(id);
-    });
+    rebuildProductCards();
 
     // restaurar modal
     if(state.paymentModalOpen){
         openPixModal();
     }
+}
+
+function rebuildProductCards(){
+
+    Object.keys(products).forEach(productId => {
+
+        let qtyTotal = 0;
+
+        Object.keys(cart).forEach(cartKey => {
+
+            const item = cart[cartKey];
+
+            if(item.productId === productId){
+                qtyTotal += item.qty;
+            }
+
+        });
+
+        const qtyEl = document.getElementById(`qty-${productId}`);
+
+        if(qtyEl){
+            qtyEl.textContent = qtyTotal;
+        }
+
+        updateFlavorList(productId);
+
+    });
+
 }
 
 // ============================================
