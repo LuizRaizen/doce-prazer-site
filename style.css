@@ -1376,8 +1376,8 @@ body {
     }
 
     .hero-logo {
-        width: 90px;
-        height: 90px;
+        width: 200px;
+        height: 200px;
     }
 
     .hero-btn {
@@ -1431,7 +1431,7 @@ body {
 
         padding: 10px 12px 10px 16px;
         gap: 10px;
-        border-radius: 20px;
+        border-radius: 60px;
         flex-wrap: nowrap;
     }
 
