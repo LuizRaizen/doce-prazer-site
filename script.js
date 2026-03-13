@@ -18,7 +18,7 @@ let currentOrderId = "";
 // ============================================
 // ESTADO DO CARRINHO
 // ============================================
-const cart = {};
+let cart = {};
 
 // Dados dos produtos com imagens
 const products = {
@@ -83,6 +83,7 @@ function changeQty(productId, delta) {
     updateQtyDisplay(productId);
     updateFlavorList(productId);
     updateCartUI();
+    saveCartState();
 }
 
 function updateQtyDisplay(productId) {
@@ -321,6 +322,8 @@ function openPixModal() {
 
     pixModal.classList.add('active');
     document.body.style.overflow = 'hidden';
+
+    saveCartState();
 }
 
 function closePixModal() {
@@ -538,6 +541,21 @@ Pagamento: PIX
     showToast("Pedido enviado com sucesso! 🎉", "success");
 }
 
+function clearCart(){
+
+    cart = {};
+
+    localStorage.removeItem("docePrazerCart");
+
+    updateCartUI();
+
+    Object.keys(products).forEach(id=>{
+        updateQtyDisplay(id);
+        updateFlavorList(id);
+    });
+
+}
+
 // ============================================
 // TOAST NOTIFICATIONS
 // ============================================
@@ -668,6 +686,8 @@ function cartChangeQty(cartKey, delta) {
     // atualizar carrinho
     updateCartUI();
     renderCartItems();
+    
+    saveCartState();
 }
 
 function removeFromCart(cartKey) {
@@ -685,6 +705,63 @@ function removeFromCart(cartKey) {
     renderCartItems();
 
     showToast('Item removido do carrinho 🗑️', 'info');
+
+    saveCartState();
+}
+
+// ============================================
+// SALVAR ESTADO DO PEDIDO
+// ============================================
+
+function saveCartState(){
+
+    const state = {
+        cart: cart,
+        flavors: {},
+        paymentModalOpen: document.getElementById("pixModal")?.classList.contains("active")
+    };
+
+    document.querySelectorAll("[id^='flavor-']").forEach(select=>{
+        state.flavors[select.id] = select.value;
+    });
+
+    localStorage.setItem("docePrazerCart", JSON.stringify(state));
+}
+
+function restoreCartState(){
+
+    const saved = localStorage.getItem("docePrazerCart");
+
+    if(!saved) return;
+
+    const state = JSON.parse(saved);
+
+    // restaurar carrinho
+    cart = state.cart || {};
+
+    // restaurar sabores
+    if(state.flavors){
+        Object.keys(state.flavors).forEach(id=>{
+            const select = document.getElementById(id);
+            if(select){
+                select.value = state.flavors[id];
+            }
+        });
+    }
+
+    // atualizar UI
+    updateCartUI();
+    renderCartItems();
+
+    Object.keys(products).forEach(id=>{
+        updateQtyDisplay(id);
+        updateFlavorList(id);
+    });
+
+    // restaurar modal
+    if(state.paymentModalOpen){
+        openPixModal();
+    }
 }
 
 // ============================================
@@ -716,6 +793,26 @@ function closeMobileNav() {
     if (mobileNav) {
         mobileNav.classList.remove('active');
     }
+}
+
+// ============================================
+// SERVICE WORKER para baixar o app
+// ============================================
+
+if ("serviceWorker" in navigator) {
+
+    window.addEventListener("load", () => {
+
+        navigator.serviceWorker.register("/sw.js")
+            .then(() => {
+                console.log("Service Worker registrado 🚀");
+            })
+            .catch(err => {
+                console.log("Erro SW:", err);
+            });
+
+    });
+
 }
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -797,6 +894,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // Inicializar carrinho
+    restoreCartState();
     updateCartUI();
 
     console.log('🍫 Doce Prazer - Cardápio Interativo carregado!');
