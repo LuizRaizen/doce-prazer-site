@@ -92,22 +92,35 @@ function updateQtyDisplay(productId) {
 
     const product = products[productId];
 
-    let flavor = "";
+    let activeFlavor = "";
 
     if (product.hasFlavor) {
         const flavorSelect = document.getElementById(`flavor-${productId}`);
         if (flavorSelect) {
-            flavor = flavorSelect.value;
+            activeFlavor = flavorSelect.value;
         }
     }
 
-    const cartKey = flavor ? `${productId}|${flavor}` : productId;
-
     let qty = 0;
 
-    if (cart[cartKey]) {
-        qty = cart[cartKey].qty;
-    }
+    Object.keys(cart).forEach(key => {
+
+        const item = cart[key];
+
+        if(item.productId !== productId) return;
+
+        // produto sem sabor
+        if(!product.hasFlavor){
+            qty += item.qty;
+            return;
+        }
+
+        // produto com sabor
+        if(item.flavor === activeFlavor){
+            qty += item.qty;
+        }
+
+    });
 
     qtyEl.textContent = qty;
 }
@@ -644,23 +657,34 @@ function cartChangeQty(cartKey, delta) {
         delete cart[cartKey];
     }
 
-    // atualizar UI do card do produto
-    updateQtyDisplay(item.productId);
-    updateFlavorList(item.productId);
+    const productId = item.productId;
+
+    // atualizar lista de sabores
+    updateFlavorList(productId);
+
+    // atualizar contador do card baseado no sabor ativo
+    updateQtyDisplay(productId);
 
     // atualizar carrinho
     updateCartUI();
     renderCartItems();
 }
 
-function removeFromCart(productId) {
-    if (cart[productId]) {
-        delete cart[productId];
-        updateQtyDisplay(productId);
-        updateCartUI();
-        renderCartItems();
-        showToast('Item removido do carrinho 🗑️', 'info');
-    }
+function removeFromCart(cartKey) {
+
+    const item = cart[cartKey];
+    if (!item) return;
+
+    const productId = item.productId;
+
+    delete cart[cartKey];
+
+    updateFlavorList(productId);
+    updateQtyDisplay(productId);
+    updateCartUI();
+    renderCartItems();
+
+    showToast('Item removido do carrinho 🗑️', 'info');
 }
 
 // ============================================
