@@ -132,7 +132,12 @@ function updateCartUI() {
     const floatingCart = document.getElementById('floatingCart');
 
     if (cartCountEl) cartCountEl.textContent = totalItems;
-    if (cartItemsCountEl) cartItemsCountEl.textContent = totalItems;
+
+    if (cartItemsCountEl) {
+        const label = totalItems === 1 ? "item" : "itens";
+        cartItemsCountEl.textContent = `${totalItems} ${label}`;
+    }
+    
     if (cartTotalEl) cartTotalEl.textContent = formatPrice(totalPrice);
 
     // Mostrar/esconder carrinho flutuante

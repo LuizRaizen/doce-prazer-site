@@ -554,16 +554,18 @@ body {
 .cart-summary {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
     flex: 1;
+    min-width: 0;
 }
 
 .cart-info {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 6px;
     color: rgba(255, 255, 255, 0.8);
-    font-size: 0.9rem;
+    font-size: 0.85rem;
+    white-space: nowrap;
 }
 
 .cart-info i {
@@ -578,6 +580,7 @@ body {
 }
 
 .order-btn {
+    flex-shrink: 0;
     background: linear-gradient(135deg, var(--primary), var(--primary-dark));
     color: var(--white);
     border: none;
@@ -1347,7 +1350,7 @@ body {
     }
 
     .logo-img {
-        height: 50px;
+        height: 40px;
         object-fit: cover;
     }
 
@@ -1434,6 +1437,14 @@ body {
 
     .cart-info {
         font-size: 0.8rem;
+    }
+
+    .cart-summary {
+        overflow: hidden;
+    }
+
+    .cart-info span {
+        white-space: nowrap;
     }
 
     .cart-total {
